@@ -8,7 +8,7 @@ WHERE ROUTINE_TYPE = 'PROCEDURE'
 ```
 
 # Functions
-Get list of Scalar Functions in a database
+Get list of Scalar Functions along with definition in a database
 ```sql
 with functions(routine_name) as 
 (
