@@ -4,8 +4,17 @@ Use PowerShell to Export table data in CSV format
 ```PowerShell
 # Does not requires -Module SqlServer in SQL Server 2016 onward
 
-Invoke-Sqlcmd -Query "SELECT * FROM DimEmp;" -Database AdventureWorksDW2012  -Server localhost |
-Export-Csv -NoTypeInformation -Path "DimEmp.csv" -Encoding UTF8
+$usr = "guest"
+$pwd = "guest"
+$instanceName = "localhost"
+$databaseName = "AdventureWorks"
+$filename = "C:\Emp.csv"
+$delimiter = ","
+
+$ExportQry = "SELECT * from [dbo].[Employee]" 
+
+Invoke-SqlCmd -Query $ExportQry -ServerInstance $instanceName -Database $databaseName -Username $usr -Password $pwd  |
+Export-Csv -Delimiter $delimiter -NoType $fileName
 ```
 
 # Bulk Insert from CSV File
