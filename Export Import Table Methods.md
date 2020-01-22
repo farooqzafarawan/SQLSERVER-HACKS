@@ -8,6 +8,8 @@ Invoke-Sqlcmd -Query "SELECT * FROM DimEmp;" -Database AdventureWorksDW2012  -Se
 Export-Csv -NoTypeInformation -Path "DimEmp.csv" -Encoding UTF8
 ```
 
+# Bulk Insert from CSV File
+```Sql
 BULK INSERT DimEmployee
     FROM 'C:\CSVData\Employee.csv'
     WITH
@@ -18,3 +20,4 @@ BULK INSERT DimEmployee
       ERRORFILE = 'C:\CSVDATA\EmployeeErrorRows.csv',
       TABLOCK
     )
+```
