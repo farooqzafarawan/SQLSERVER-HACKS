@@ -2,7 +2,7 @@
 Use PowerShell to Export table data in CSV format
 
 ```PowerShell
-#Requires -Module SqlServer
+# Does not requires -Module SqlServer in SQL Server 2016 onward
 
 Invoke-Sqlcmd -Query "SELECT * FROM DimEmp;" -Database AdventureWorksDW2012  -Server localhost |
 Export-Csv -NoTypeInformation -Path "DimEmp.csv" -Encoding UTF8
