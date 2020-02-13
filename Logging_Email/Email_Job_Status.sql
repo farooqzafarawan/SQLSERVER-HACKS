@@ -10,18 +10,18 @@ DECLARE @Body NVARCHAR(MAX),
 
 		Select @SuccessStatus=count(*) 
 		from 
-		 EntityIngestionJobHeader H
-		, EntityIngestionJobsDetail D
+		 EIJobHeader H
+		, EIJobsDetail D
 		where H.EntityNumber = D.EntityNumber and H.EntityName = D.EntityName
-		and D.ExecutionDate = (select max(ExecutionDate) from EntityIngestionJobsDetail)
+		and D.ExecutionDate = (select max(ExecutionDate) from EIJobsDetail)
 		and D.Status in ('Succeeded') and H.JobType = 'Ingestion' and H.IsActive = 1 AND D.TargetRowCount IS NOT NULL;
 
 		select @FailStatus=count(*) 
 		from 
-		 EntityIngestionJobHeader H
-		, EntityIngestionJobsDetail D
+		 EIJobHeader H
+		, EIJobDetail D
 		where H.EntityNumber = D.EntityNumber and H.EntityName = D.EntityName
-		and D.ExecutionDate = (select max(ExecutionDate) from EntityIngestionJobsDetail)
+		and D.ExecutionDate = (select max(ExecutionDate) from EIJobsDetail)
 		and D.Status in ('Failed') and H.JobType = 'Ingestion' and H.IsActive = 1 AND D.TargetRowCount IS NOT NULL;
 
 SET @TableTail = '</table></body></html>' ;
@@ -48,32 +48,22 @@ SET @TableHead = '<html><head>' + '<style>'
 
 SET @vXML_String =  CONVERT( NVARCHAR(MAX),
                         (
-                          SELECT DISTINCT
-                                 '',
-                               td=  H.EntityName,
-                                 '',
-                                td= H.ExecutionMode,
-                                 '',
-                              td=   D.ExecutionDate,
-                                 '',
-                               td =  D.StartDateTime,
-								'',
-							td =	D.EndDateTime,
-                                 '',
-                              td =   DATEDIFF(MINUTE,D.StartDateTime,D.EndDateTime)  ,
-                                 '',
-                              td =   D.Status,
-                                 '',
-                              td =   D.TargetRowCount,
-						      '',
-                              td =   D.ErrorMsg, ''
-                          FROM
-                          EntityIngestionJobHeader H
-						, EntityIngestionJobsDetail D
-						where H.EntityNumber = D.EntityNumber and H.EntityName = D.EntityName
-						and D.ExecutionDate = (select max(ExecutionDate) from EntityIngestionJobsDetail)
-						and D.Status in ('Succeeded','Failed') and H.JobType = 'Ingestion' and H.IsActive = 1 AND D.TargetRowCount IS NOT NULL
-                        
+                          SELECT DISTINCT             '',
+                              td=   H.EntityName,     '',
+                              td=   H.ExecutionMode,   '',
+                              td=   D.ExecutionDate,   '',
+                              td =  D.StartDateTime,								'',
+			      td =  D.EndDateTime, '',
+                              td =  DATEDIFF(MINUTE,D.StartDateTime,D.EndDateTime)  ,                                '',
+                              td =  D.Status,                                 '',
+                              td =  D.TargetRowCount,						      '',
+                              td =  D.ErrorMsg, ''
+                          FROM EIJobHeader H
+				, EntityIngestionJobsDetail D
+			where H.EntityNumber = D.EntityNumber and H.EntityName = D.EntityName
+			and D.ExecutionDate = (select max(ExecutionDate) from EntityIngestionJobsDetail)
+			and D.Status in ('Succeeded','Failed') and H.JobType = 'Ingestion' 
+			and H.IsActive = 1 AND D.TargetRowCount IS NOT NULL
                           FOR XML PATH( 'tr' )
                         ) );
 
@@ -87,7 +77,7 @@ END;
 
 SET @Body=@vXML_String;
 
-SET @vSubject= 'Server Name: CWCAcuitySpProd; Job Name: AS_CWC_Ingest_To_ADL; Status: Success : ' + @SuccessStatus + ', Failure : ' + @FailStatus  + '; Exec Time: ' + CONVERT( nvarchar, GETDATE( ) );
+SET @vSubject= 'Server Name: localhost; Job Name: Ingest_To_ADL; Status: Success : ' + @SuccessStatus + ', Failure : ' + @FailStatus  + '; Exec Time: ' + CONVERT( nvarchar, GETDATE( ) );
 
 
 --SET @vXML_String=REPLACE( @vXML_String, ''<td>'', ''<td style="font-family:Calibri;color:black;font-size:12px;border:1px solid black;">'' );
@@ -95,9 +85,9 @@ SET @vSubject= 'Server Name: CWCAcuitySpProd; Job Name: AS_CWC_Ingest_To_ADL; St
 SELECT  @Body = @TableHead + ISNULL(@Body, '') + @TableTail
 
 EXEC msdb.dbo.sp_send_dbmail
-     @recipients='kamran.butt@visionet.com',
+     @recipients='ahmad@yahoo.com',
      @subject=@vSubject,
      @body=@Body,
 	 --@body=@vBody,
      @body_format='HTML',
-     @profile_name='AcuitySpark Monitoring';
+     @profile_name='Monitoring';
